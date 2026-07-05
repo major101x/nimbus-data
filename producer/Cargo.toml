@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+dotenv = "0.15.0"
 rand = "0.10.1"
 rdkafka = { version = "0.39.0", features = ["cmake-build"] }
 serde = { version = "1.0.228", features = ["derive"] }
