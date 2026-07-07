@@ -2,3 +2,4 @@
 members = [
     "producer"
 ]
+resolver="3"
