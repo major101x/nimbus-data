@@ -36,8 +36,6 @@ async fn produce(brokers: &str, topic: &str) {
 
     let mut i = 0;
     loop {
-        let key_str = format!("{}", i);
-
         let delivery_status = producer.send(
             FutureRecord::to(topic).payload(&serialized_event).key(&weather_event.station_id),
             Timeout::After(Duration::from_mins(1)),
