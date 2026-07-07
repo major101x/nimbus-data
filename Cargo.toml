@@ -1,5 +1,5 @@
 [workspace]
-members = [
+members = ["consumer",
     "producer"
 ]
 resolver="3"
