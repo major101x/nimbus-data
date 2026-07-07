@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: strimzi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer-consumer
+        image: producer-consumer:latest
+        imagePullPolicy: Never
+        ports:
+        env:
+          - name: KAFKA_CLUSTER_URL
+            value: my-cluster-kafka-bootstrap.strimzi.svc:9092
+          - name: KAFKA_TOPIC
+            value: weather-events
