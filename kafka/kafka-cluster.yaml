@@ -62,9 +62,10 @@ spec:
         type: nodeport
         tls: false
         configuration:
-          - broker: 0
-            advertisedHost: localhost
-            advertisedPort: 9094
+          brokers:
+            - broker: 0
+              advertisedHost: localhost
+              advertisedPort: 9094
     version: 4.1.1
     jvmOptions:
       "-Xms": "512m"
