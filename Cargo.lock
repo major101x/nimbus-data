@@ -53,6 +53,13 @@ dependencies = [
 [[package]]
 name = "consumer"
 version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "rdkafka",
+ "serde",
+ "serde_json",
+ "tokio",
+]
 
 [[package]]
 name = "cpufeatures"
