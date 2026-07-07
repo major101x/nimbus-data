@@ -1,0 +1,5 @@
+services:
+  app:
+    image: producer-consumer
+    env_file: 
+      - ./.env
