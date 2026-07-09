@@ -1,4 +1,6 @@
 use dotenv::dotenv;
+use metrics::{counter, describe_counter};
+use metrics_exporter_prometheus::PrometheusBuilder;
 use rdkafka::{
     ClientConfig, Message, consumer::{CommitMode, Consumer, StreamConsumer},
 };
@@ -20,9 +22,22 @@ async fn consume_and_print(brokers: &str, group_id: &str, topics: &str) {
         .subscribe(&vec![topics])
         .expect("Can't subscribe to topics");
 
+    let builder = PrometheusBuilder::new();
+    builder.with_http_listener(([0, 0, 0, 0], 9000)).install().expect("failed to install recorder/exporter");
+
+    let events_processed_total = counter!("events_processed_total");
+    let consumer_errors_total = counter!("consumer_errors_total");
+
+    describe_counter!("events_processed_total", "The number of messages sent so far.");
+    describe_counter!("consumer_errors_total", "The number of messages not sent due to errors so far.");
+
+
     loop {
         match consumer.recv().await {
-            Err(e) => println!("Kafka error: {}", e),
+            Err(e) => {
+                println!("Error while receiving message: {}", e);
+                consumer_errors_total.increment(1);
+            },
             Ok(m) => {
                 let payload = match m.payload_view::<str>() {
                     None => "",
@@ -42,6 +57,8 @@ async fn consume_and_print(brokers: &str, group_id: &str, topics: &str) {
                     m.offset(),
                     m.timestamp()
                 );
+
+                events_processed_total.increment(1);
 
                 consumer.commit_message(&m, CommitMode::Async).unwrap();
             }

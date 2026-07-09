@@ -18,6 +18,8 @@ spec:
         image: producer:dev
         imagePullPolicy: Never
         ports:
+        - containerPort: 9000
+          name: metrics
         env:
           - name: KAFKA_CLUSTER_URL
             value: my-cluster-kafka-bootstrap.strimzi.svc:9092

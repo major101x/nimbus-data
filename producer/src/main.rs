@@ -1,4 +1,6 @@
 use dotenv::dotenv;
+use metrics::{counter, describe_counter};
+use metrics_exporter_prometheus::PrometheusBuilder;
 use rand::RngExt;
 use rdkafka::{
     config::ClientConfig,
@@ -43,6 +45,16 @@ async fn produce(brokers: &str, topic: &str) {
         .create()
         .expect("Producer creation error");
 
+    let builder = PrometheusBuilder::new();
+    builder.with_http_listener(([0, 0, 0, 0], 9000)).install().expect("failed to install recorder/exporter");
+
+    let events_produced_total = counter!("events_produced_total");
+    let producer_errors_total = counter!("producer_errors_total");
+
+    describe_counter!("events_produced_total", "The number of messages sent so far.");
+    describe_counter!("producer_errors_total", "The number of messages not sent due to errors so far.");
+
+
     let mut i = 0;
     loop {
         let weather_event = generate_weather_event(i);
@@ -55,12 +67,16 @@ async fn produce(brokers: &str, topic: &str) {
 
         match delivery_status {
             Ok(m) => println!("Message sent! Partition: {}, Offset: {}, Timestamp: {:?}", m.partition, m.offset, m.timestamp),
-            Err(e) => print!("Message not sent! Payload: {:#?}", e)
+            Err(e) => {
+                print!("Message not sent! Payload: {:#?}", e);
+                producer_errors_total.increment(1);
+            }
         }
 
         println!("Delivery status for message {} received", i);
 
         i += 1;
+        events_produced_total.increment(1);
         sleep(Duration::from_millis(100)).await;
     }
 }
