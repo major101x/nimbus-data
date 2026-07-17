@@ -16,4 +16,4 @@ spec:
             severity: warning
           annotations:
             summary: "Kafka consumer is falling behind"
-            description: "Consumer lag is {{ $value }}, above the 10000 threshold — the consumer isn't keeping up with the producer."
+            description: "Consumer lag is {{ $value }}, above the 1000 threshold — the consumer isn't keeping up with the producer."
