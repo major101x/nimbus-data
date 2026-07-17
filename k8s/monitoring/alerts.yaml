@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nimbus-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: nimbus-consumer.rules
+      rules:
+        - alert: ConsumerLagHigh
+          expr: sum(kafka_consumergroup_lag) > 1000
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Kafka consumer is falling behind"
+            description: "Consumer lag is {{ $value }}, above the 10000 threshold — the consumer isn't keeping up with the producer."
